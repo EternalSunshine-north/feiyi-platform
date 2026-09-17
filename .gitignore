@@ -1,0 +1,20 @@
+node_modules/
+.next/
+out/
+build/
+.npm-cache/
+.preview/
+.chrome-*/
+.data/
+public/generated/
+.env
+.env.local
+*.log
+.DS_Store
+tsconfig.tsbuildinfo
+next-env.d.ts
+
+# 原始素材（体积大，自行放回 素材源/ 目录后执行 npm run assets）
+素材源/
+
+.evn local

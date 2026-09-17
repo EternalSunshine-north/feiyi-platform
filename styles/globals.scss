@@ -1,0 +1,1238 @@
+@use 'sass:math';
+@use 'tokens' as *;
+
+/* ============ 基础层 ============ */
+:root {
+  color-scheme: light;
+  --page-max: 1240px;
+  --nav-h: 72px;
+  // 程序化生成的暖色动态背景参数
+  --paper-base: #f4eadb;
+  --paper-warm: #eee0c9;
+  --paper-deep: #e5d4bc;
+  --accent-cinnabar: 222, 112, 82;
+  --accent-gold: 216, 162, 74;
+  --accent-olive: 147, 165, 102;
+  --accent-ink: 58, 42, 29;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  color: $text-1;
+  /* 正文区域隐藏文本插入光标：浏览器开启「插入光标浏览（caret browsing）」后，
+     点击文字会出现类似 Word 的闪烁光标，这里让它在普通内容上不可见；
+     输入框 / 文本域仍保留光标，见下方表单样式。 */
+  caret-color: transparent;
+  font-family: 'PingFang SC', 'HarmonyOS Sans SC', 'Microsoft YaHei', 'Hiragino Sans GB', system-ui,
+    sans-serif;
+  background-color: var(--paper-base);
+  background-image:
+    radial-gradient(1100px 640px at 10% -8%, rgba(230, 194, 144, 0.55), transparent 62%),
+    radial-gradient(900px 560px at 94% 2%, rgba(224, 141, 110, 0.24), transparent 60%),
+    radial-gradient(820px 640px at 62% 104%, rgba(166, 182, 128, 0.26), transparent 62%),
+    radial-gradient(700px 520px at 30% 60%, rgba(252, 246, 236, 0.55), transparent 70%),
+    linear-gradient(180deg, #f7eee1 0%, #efe2cf 46%, #e8d9c2 100%);
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: rgba(200, 146, 65, 0.36);
+  color: #33241a;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(226, 210, 188, 0.78);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(216, 162, 74, 0.72), rgba(193, 80, 58, 0.6));
+  border-radius: 999px;
+  border: 2px solid rgba(244, 234, 219, 0.94);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+}
+
+img,
+video {
+  max-width: 100%;
+  display: block;
+}
+
+/* ============ 布局工具 ============ */
+.page-shell {
+  width: 100%;
+  max-width: var(--page-max);
+  margin: 0 auto;
+  padding: 0 24px;
+
+  @media (max-width: $bp-sm) {
+    padding: 0 16px;
+  }
+}
+
+.section {
+  padding: 92px 0;
+  position: relative;
+
+  @media (max-width: $bp-md) {
+    padding: 64px 0;
+  }
+}
+
+.section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 40px;
+
+  @media (max-width: $bp-md) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+}
+
+.kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: $cinnabar-500;
+
+  &::before {
+    content: '';
+    width: 26px;
+    height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, transparent, $cinnabar-400 45%, $gold-400);
+  }
+}
+
+.section-title {
+  margin: 12px 0 0;
+  font-family: 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', 'STSong', serif;
+  font-size: clamp(26px, 3.2vw, 42px);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.24;
+  color: #33241a;
+
+  // 回纹（雷纹）下划线：非遗风格的标题装饰
+  &::after {
+    content: '';
+    display: block;
+    width: 168px;
+    height: 10px;
+    margin-top: 14px;
+    background-repeat: repeat-x;
+    background-size: 56px 10px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='10' viewBox='0 0 56 10'%3E%3Cg fill='none' stroke='%23b94a33' stroke-width='1.3' stroke-linecap='square'%3E%3Cpath d='M2 8V2h6v4h6V2h6v4h6V2h6v4h6V2h6v6'/%3E%3Cpath d='M2 8h4'/%3E%3C/g%3E%3C/svg%3E");
+    opacity: 0.55;
+  }
+}
+
+.section-desc {
+  max-width: 620px;
+  color: $text-2;
+  line-height: 1.9;
+  font-size: 15px;
+}
+
+/* ============ 玻璃拟态 / 渐变 ============ */
+.glass {
+  position: relative;
+  border-radius: 20px;
+  border: 1px solid rgba(166, 126, 84, 0.42);
+  /* 宣纸卡片：米色渐变 + 四角剪纸角花 */
+  background-color: rgba(247, 238, 225, 0.9);
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cg fill='none' stroke='%23b94a33' stroke-width='1.1' opacity='0.5'%3E%3Cpath d='M2 22C2 10 10 2 22 2'/%3E%3Cpath d='M6 22C6 12 12 6 22 6'/%3E%3Cpath d='M12 4c3 5 8 6 12 6'/%3E%3Cpath d='M4 12c5 3 6 8 6 12'/%3E%3Ccircle cx='10' cy='10' r='2.2'/%3E%3C/g%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cg fill='none' stroke='%23c89241' stroke-width='1.1' opacity='0.5'%3E%3Cpath d='M62 42C62 54 54 62 42 62'/%3E%3Cpath d='M58 42C58 52 52 58 42 58'/%3E%3Cpath d='M52 60c-3-5-8-6-12-6'/%3E%3Cpath d='M60 52c-5-3-6-8-6-12'/%3E%3Ccircle cx='54' cy='54' r='2.2'/%3E%3C/g%3E%3C/svg%3E"),
+    linear-gradient(150deg, rgba(249, 242, 231, 0.96), rgba(238, 227, 209, 0.9));
+  background-repeat: no-repeat, no-repeat, no-repeat;
+  background-position: left top, right bottom, center;
+  background-size: 62px 62px, 62px 62px, auto;
+  backdrop-filter: blur(10px);
+  box-shadow:
+    0 18px 44px rgba(104, 74, 46, 0.13),
+    0 2px 0 rgba(255, 255, 255, 0.45) inset;
+}
+
+.glass-hover {
+  transition:
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.45s ease,
+    box-shadow 0.45s ease;
+
+  &:hover {
+    transform: translateY(-6px);
+    border-color: rgba(185, 74, 51, 0.45);
+    box-shadow:
+      0 26px 56px rgba(104, 74, 46, 0.2),
+      0 0 0 1px rgba(216, 162, 74, 0.28),
+      0 0 34px rgba(224, 141, 110, 0.24);
+  }
+}
+
+.gradient-text {
+  /* 米色底上可读的暖色渐变（金 → 朱红 → 赭石） */
+  background: linear-gradient(96deg, #a9762a 0%, #b94a33 42%, #97392a 70%, #7c5220 100%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: flowGradient 9s ease infinite;
+}
+
+.gradient-line {
+  height: 1px;
+  border: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(185, 74, 51, 0.55),
+    rgba(216, 162, 74, 0.5),
+    transparent
+  );
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: rgba(66, 47, 32, 0.86);
+  border: 1px solid rgba(166, 126, 84, 0.42);
+  background: rgba(247, 239, 227, 0.88);
+}
+
+.chip-gold {
+  color: #6f4614;
+  border-color: rgba(200, 146, 65, 0.5);
+  background: rgba(237, 217, 176, 0.72);
+}
+
+.chip-jade {
+  color: #4e5c2b;
+  border-color: rgba(139, 157, 91, 0.5);
+  background: rgba(207, 218, 176, 0.72);
+}
+
+/* ============ 按钮 ============ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 26px;
+  border-radius: 999px;
+  font-size: 14.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    background 0.3s ease,
+    color 0.3s ease;
+  white-space: nowrap;
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.btn-primary {
+  /* 朱红印章色：非遗主按钮 */
+  color: #fff7ea;
+  background: linear-gradient(120deg, $cinnabar-500, $cinnabar-400 52%, $gold-400);
+  background-size: 180% 100%;
+  box-shadow: 0 12px 28px rgba(185, 74, 51, 0.32);
+
+  &:hover {
+    background-position: 100% 0;
+    box-shadow: 0 16px 38px rgba(185, 74, 51, 0.4);
+    transform: translateY(-2px);
+  }
+}
+
+.btn-ghost {
+  color: #443020;
+  border-color: rgba(166, 126, 84, 0.48);
+  background: rgba(247, 238, 225, 0.88);
+
+  &:hover {
+    border-color: rgba(185, 74, 51, 0.48);
+    background: rgba(246, 227, 190, 0.72);
+    color: #6f3520;
+    transform: translateY(-2px);
+  }
+}
+
+.btn-neon {
+  color: #4a2a12;
+  background: linear-gradient(120deg, $neon-300, $gold-300 60%, $skyglow);
+  box-shadow: 0 12px 28px rgba(200, 146, 65, 0.34);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 38px rgba(200, 146, 65, 0.42);
+  }
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ============ 非遗纹样装饰 ============ */
+.pattern-ornament {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.22;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cg fill='none' stroke='%23b94a33' stroke-width='1.1'%3E%3Cpath d='M60 8c14 14 14 38 0 52-14-14-14-38 0-52z'/%3E%3Cpath d='M60 112c-14-14-14-38 0-52 14 14 14 38 0 52z'/%3E%3Cpath d='M8 60c14-14 38-14 52 0-14 14-38 14-52 0z'/%3E%3Cpath d='M112 60c-14 14-38 14-52 0 14-14 38-14 52 0z'/%3E%3Ccircle cx='60' cy='60' r='9'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 120px 120px;
+}
+
+.pattern-cloud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.2;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='80' viewBox='0 0 160 80'%3E%3Cg fill='none' stroke='%23a9762a' stroke-width='1.2'%3E%3Cpath d='M4 56c8 0 12-10 22-10s14 10 24 10 12-10 22-10 14 10 24 10 12-10 22-10 14 10 24 10'/%3E%3Cpath d='M4 34c8 0 12-10 22-10s14 10 24 10 12-10 22-10 14 10 24 10 12-10 22-10 14 10 24 10'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 160px 80px;
+  mask-image: linear-gradient(180deg, transparent, #000 40%, transparent);
+}
+
+.glow-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  pointer-events: none;
+}
+
+/* ============ 动效 ============ */
+@keyframes flowGradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes floatY {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+
+@keyframes spinSlow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulseGlow {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes riseIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -220% 0;
+  }
+  100% {
+    background-position: 220% 0;
+  }
+}
+
+@keyframes kenburns {
+  0% {
+    transform: scale(1) translate(0, 0);
+  }
+  100% {
+    transform: scale(1.09) translate(-1.4%, -1.2%);
+  }
+}
+
+/* 首屏轮播图片：交叉淡入 + 缓慢缩放 */
+.slide-layer {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1.1s ease;
+}
+
+.slide-layer.is-active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.slide-progress {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, $cinnabar-500, $gold-400);
+  animation-name: slideProgress;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+.slide-progress.is-paused {
+  animation-play-state: paused;
+}
+
+@keyframes slideProgress {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+.slide-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 1.1s ease;
+}
+
+.slide-img.is-active {
+  opacity: 1;
+  animation: kenburns 7.5s ease-out forwards;
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+.animate-rise {
+  animation: riseIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.float-slow {
+  animation: floatY 7s ease-in-out infinite;
+}
+
+.pulse-glow {
+  animation: pulseGlow 5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .float-slow,
+  .pulse-glow,
+  .gradient-text {
+    animation: none !important;
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* 输入类元素保留文本光标（body 已把正文光标设为透明，避免浏览器光标浏览模式下的闪烁光标） */
+input,
+textarea,
+select,
+[contenteditable='true'] {
+  caret-color: auto;
+}
+
+/* ============ 表单 ============ */
+.field {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(166, 126, 84, 0.46);
+  background: rgba(248, 240, 229, 0.95);
+  color: #33241a;
+  font-size: 14.5px;
+  line-height: 1.6;
+  outline: none;
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+
+  &::placeholder {
+    color: rgba(120, 94, 68, 0.55);
+  }
+
+  &:focus {
+    border-color: rgba(185, 74, 51, 0.58);
+    box-shadow: 0 0 0 3px rgba(200, 146, 65, 0.22);
+  }
+}
+
+/* ============ 杂项 ============ */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 46s linear infinite;
+
+  &:hover {
+    animation-play-state: paused;
+  }
+}
+
+.card-media {
+  position: relative;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
+.glass-hover:hover .card-media img {
+  transform: scale(1.07);
+}
+
+.text-muted {
+  color: $text-2;
+}
+
+.text-dim {
+  color: $text-3;
+}
+
+.serif {
+  font-family: 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', 'STSong', serif;
+}
+
+/* ============ 全国非遗 · 代码绘制的动态视觉 ============ */
+@keyframes hueShift {
+  to {
+    filter: hue-rotate(360deg);
+  }
+}
+
+.art-visual {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  /* 暖褐底：与米色主题统一（原来是偏冷的深蓝紫） */
+  background: linear-gradient(160deg, #1a1410, #241a12 60%, #140f0b);
+}
+
+.art-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.76;
+  animation: kenburns 11s ease-in-out infinite alternate;
+}
+
+.art-layer {
+  position: absolute;
+  inset: -25%;
+  mix-blend-mode: screen;
+}
+
+.art-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.art-grain {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+  background-size: 4px 4px;
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+/* 打铁花 */
+.art-sparks {
+  background:
+    radial-gradient(120% 80% at 50% 100%, rgba(255, 150, 40, 0.32), transparent 62%),
+    linear-gradient(180deg, #17110c, #2a1408);
+}
+
+.art-sparks .art-layer-1 {
+  background: radial-gradient(60% 60% at 40% 80%, rgba(255, 190, 90, 0.35), transparent 70%);
+  animation: pulseGlow 4.5s ease-in-out infinite;
+}
+
+/* 剪纸 */
+.art-paper {
+  background: linear-gradient(180deg, #1b0c0c, #2a0f0f 60%, #12060a);
+}
+
+.art-paper .art-layer-1 {
+  opacity: 0.55;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cg fill='none' stroke='%23ff9a76' stroke-width='1.2'%3E%3Cpath d='M60 8c14 14 14 38 0 52-14-14-14-38 0-52z'/%3E%3Cpath d='M60 112c-14-14-14-38 0-52 14 14 14 38 0 52z'/%3E%3Cpath d='M8 60c14-14 38-14 52 0-14 14-38 14-52 0z'/%3E%3Cpath d='M112 60c-14 14-38 14-52 0 14-14 38-14 52 0z'/%3E%3Ccircle cx='60' cy='60' r='9'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 96px 96px;
+  animation: spinSlow 44s linear infinite;
+}
+
+.art-paper .art-layer-2 {
+  background: radial-gradient(circle at 30% 22%, rgba(255, 120, 90, 0.36), transparent 62%);
+  animation: pulseGlow 6s ease-in-out infinite;
+}
+
+/* 苏绣 */
+.art-silk {
+  background: linear-gradient(160deg, #20170f, #2a1a14);
+}
+
+.art-silk .art-layer-1 {
+  background: conic-gradient(
+    from 0deg,
+    rgba(255, 214, 170, 0.5),
+    rgba(139, 92, 255, 0.32),
+    rgba(58, 214, 192, 0.42),
+    rgba(255, 214, 170, 0.5)
+  );
+  filter: blur(26px);
+  animation: spinSlow 22s linear infinite;
+}
+
+.art-silk .art-layer-2 {
+  background: linear-gradient(115deg, transparent 32%, rgba(255, 255, 255, 0.32) 50%, transparent 68%);
+  background-size: 260% 100%;
+  animation: shimmer 5.5s linear infinite;
+}
+
+/* 景德镇瓷器 */
+.art-glaze {
+  background:
+    radial-gradient(70% 60% at 62% 28%, rgba(180, 220, 255, 0.26), transparent 66%),
+    linear-gradient(160deg, #191410, #241d15);
+}
+
+.art-glaze .art-layer-1 {
+  background: conic-gradient(
+    from 210deg,
+    rgba(120, 190, 255, 0.34),
+    transparent 44%,
+    rgba(255, 255, 255, 0.28) 60%,
+    transparent 82%
+  );
+  filter: blur(18px);
+  animation: spinSlow 26s linear infinite;
+}
+
+.art-glaze .art-layer-2 {
+  background: radial-gradient(circle at 30% 72%, rgba(255, 255, 255, 0.22), transparent 56%);
+  animation: pulseGlow 5s ease-in-out infinite;
+}
+
+/* 昆曲水袖 */
+.art-sleeve {
+  background: linear-gradient(180deg, #1c1512, #2a1a16);
+}
+
+.art-sleeve-flow {
+  position: absolute;
+  inset: 0;
+}
+
+.art-sleeve .art-layer-1 {
+  background:
+    radial-gradient(42% 58% at 30% 62%, rgba(255, 163, 190, 0.5), transparent 70%),
+    radial-gradient(48% 54% at 72% 38%, rgba(169, 139, 255, 0.44), transparent 72%);
+  filter: blur(26px);
+  animation: floatY 8s ease-in-out infinite;
+}
+
+.art-sleeve .art-layer-2 {
+  background: linear-gradient(180deg, transparent 40%, rgba(255, 255, 255, 0.18) 55%, transparent 72%);
+  background-size: 100% 240%;
+  animation: shimmer 7s linear infinite;
+}
+
+/* 皮影 */
+.art-shadow {
+  background:
+    radial-gradient(120% 90% at 50% 18%, rgba(255, 214, 150, 0.24), transparent 62%),
+    linear-gradient(180deg, #16110e, #241a14);
+}
+
+.art-shadow .art-layer-1 {
+  background: linear-gradient(115deg, transparent 34%, rgba(255, 200, 120, 0.34) 50%, transparent 66%);
+  background-size: 240% 100%;
+  animation: shimmer 6s linear infinite;
+}
+
+.art-puppet {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 34%;
+  aspect-ratio: 0.6;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(180deg, rgba(18, 10, 6, 0.95), rgba(76, 32, 16, 0.92));
+  clip-path: polygon(50% 0, 68% 16%, 60% 32%, 78% 55%, 66% 100%, 34% 100%, 22% 55%, 40% 32%, 32% 16%);
+  box-shadow: 0 0 44px rgba(255, 180, 90, 0.5);
+  animation: floatY 6.5s ease-in-out infinite;
+}
+
+/* 川剧变脸 */
+.art-mask {
+  background: linear-gradient(180deg, #191311, #261418);
+}
+
+.art-mask .art-layer-1 {
+  background: conic-gradient(from 0deg, #b94a33, #dfb671, #aabc85, #d0684c, #b94a33);
+  filter: blur(30px);
+  animation:
+    spinSlow 14s linear infinite,
+    hueShift 7s linear infinite;
+}
+
+.art-mask .art-layer-2 {
+  background: radial-gradient(circle at 50% 55%, rgba(10, 8, 16, 0.9), transparent 62%);
+}
+
+.art-maskbox {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 34%;
+  aspect-ratio: 0.82;
+  transform: translate(-50%, -50%);
+  border-radius: 46% 46% 42% 42%;
+  background: linear-gradient(150deg, rgba(185, 74, 51, 0.92), rgba(72, 42, 28, 0.88));
+  box-shadow: 0 0 40px rgba(185, 74, 51, 0.48);
+  animation: hueShift 5.5s linear infinite;
+  mix-blend-mode: screen;
+}
+
+/* 二十四节气 */
+.art-seasons {
+  background: linear-gradient(180deg, #151713, #1c1a13 55%, #241708);
+}
+
+.art-seasons .art-layer-1 {
+  background: conic-gradient(
+    from 0deg,
+    rgba(58, 214, 192, 0.34),
+    rgba(243, 193, 121, 0.34),
+    rgba(139, 92, 255, 0.3),
+    rgba(58, 214, 192, 0.34)
+  );
+  filter: blur(24px);
+  animation: spinSlow 20s linear infinite reverse;
+}
+
+.art-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 62%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1px dashed rgba(255, 217, 160, 0.55);
+  display: grid;
+  place-items: center;
+  color: rgba(255, 236, 205, 0.92);
+  font-size: 12px;
+  letter-spacing: 0.42em;
+  text-indent: 0.42em;
+  animation: spinSlow 34s linear infinite;
+}
+
+/* ==========================================================================
+   米色暖调主题层（依据参考图色板）
+   1) 把深色主题里大量使用的 white/NN 工具类重映射为「暖墨 / 暖沙」
+   2) 提供 .on-photo 例外：压在照片上的文字仍保持米白，保证可读
+   ========================================================================== */
+
+$white-steps: 25, 30, 35, 40, 45, 48, 50, 55, 60, 62, 65, 68, 70, 72, 75, 78, 80, 82, 85, 88, 90, 92;
+
+@each $step in $white-steps {
+  $a: math.div($step, 100);
+
+  // 正文/标题：暖墨色
+  .text-white\/#{$step} {
+    color: rgba(51, 36, 24, math.min(1, $a * 1.38));
+  }
+
+  // 次要背景：暖沙色（米色底上用白色是看不见的）
+  .bg-white\/#{$step} {
+    background-color: rgba(166, 124, 78, math.min(0.26, $a * 1.5));
+  }
+
+  // 描边：暖褐色
+  .border-white\/#{$step} {
+    border-color: rgba(150, 112, 70, math.min(0.58, $a * 1.7));
+  }
+}
+
+.bg-black\/40,
+.bg-black\/45 {
+  background-color: rgba(58, 40, 26, 0.88);
+}
+
+.text-inktext {
+  color: #33241a;
+}
+
+/* 纯 text-white / hover:text-white：米色底上改为暖墨 */
+.text-white {
+  color: #33241a;
+}
+
+.hover\:text-white:hover {
+  color: #6f3520;
+}
+
+/* 强调色：米色底上需要加深才看得清 */
+.text-gold-200 {
+  color: #7c5220;
+}
+
+.text-gold-200\/85 {
+  color: rgba(138, 90, 30, 0.92);
+}
+
+.text-gold-200\/90 {
+  color: rgba(138, 90, 30, 0.96);
+}
+
+.text-gold-300 {
+  color: #916322;
+}
+
+.text-gold-300\/80 {
+  color: rgba(160, 111, 34, 0.92);
+}
+
+.text-gold-300\/85 {
+  color: rgba(160, 111, 34, 0.95);
+}
+
+.text-gold-300\/90 {
+  color: #8d5f1e;
+}
+
+.text-gold-100 {
+  color: #7c5220;
+}
+
+.text-jade-300 {
+  color: #4e5c2b;
+}
+
+.text-cinnabar-300 {
+  color: #97392a;
+}
+
+/* 压在照片上的文字：恢复浅色调 */
+.on-photo .text-white,
+.on-photo.text-white {
+  color: #fff8ec;
+}
+
+.on-photo .hover\:text-white:hover {
+  color: #ffffff;
+}
+
+.on-photo .text-gold-200,
+.on-photo.text-gold-200 {
+  color: #f6e3be;
+}
+
+.on-photo .text-gold-200\/85,
+.on-photo .text-gold-200\/90 {
+  color: #f8e7c6;
+}
+
+.on-photo .text-gold-300,
+.on-photo.text-gold-300 {
+  color: #ebc489;
+}
+
+.on-photo .text-gold-300\/80,
+.on-photo .text-gold-300\/85,
+.on-photo .text-gold-300\/90 {
+  color: #efd0a0;
+}
+
+.on-photo .text-jade-300,
+.on-photo.text-jade-300 {
+  color: #d6dfb8;
+}
+
+.on-photo .text-cinnabar-300,
+.on-photo.text-cinnabar-300 {
+  color: #f8c3ae;
+}
+
+/* 压在照片上的文字：保持米白并保留深色底 */
+.on-photo {
+  color: #fff8ec;
+}
+
+@each $step in $white-steps {
+  $a: math.div($step, 100);
+
+  // 照片上：后代元素也恢复为米白（例如 text-white/80 的说明文字）
+  .on-photo .text-white\/#{$step} {
+    color: rgba(255, 249, 238, math.min(1, $a * 1.32));
+  }
+
+  .on-photo.text-white\/#{$step} {
+    color: rgba(255, 249, 238, math.min(1, $a * 1.25));
+  }
+
+  .on-photo.border-white\/#{$step} {
+    border-color: rgba(255, 240, 214, math.min(0.6, $a * 1.6));
+  }
+}
+
+.on-photo.chip {
+  background: rgba(40, 24, 14, 0.66);
+  border-color: rgba(255, 240, 214, 0.32);
+  color: #fdf6e8;
+}
+
+.on-photo.chip-gold {
+  background: rgba(122, 68, 26, 0.62);
+  border-color: rgba(255, 226, 168, 0.5);
+  color: #ffefd3;
+}
+
+.on-photo.chip-jade {
+  background: rgba(58, 66, 36, 0.6);
+  border-color: rgba(206, 224, 168, 0.45);
+  color: #f0f5e2;
+}
+
+/* 代码 / JSON 展示块：暖褐底 + 米色文字 */
+.code-block {
+  border-radius: 12px;
+  border: 1px solid rgba(200, 146, 65, 0.32);
+  background: rgba(50, 34, 23, 0.92);
+  color: #f7ecd8;
+
+  &::selection {
+    background: rgba(200, 146, 65, 0.42);
+  }
+}
+
+/* ==========================================================================
+   非遗动态背景（全站铺底）
+   参考图特征：米白宣纸底 + 暖沙金渐变 + 朱红/珊瑚点缀 + 墨线
+   ========================================================================== */
+
+.ich-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  background: linear-gradient(180deg, #f9f2e6 0%, #f0e5d2 42%, #e8d9c2 100%);
+}
+
+/* 暖色光晕缓慢漂移 */
+.ich-backdrop__wash {
+  position: absolute;
+  inset: -18%;
+  background:
+    radial-gradient(46% 38% at 14% 12%, rgba(232, 191, 140, 0.62), transparent 66%),
+    radial-gradient(38% 34% at 88% 6%, rgba(224, 141, 110, 0.4), transparent 64%),
+    radial-gradient(44% 40% at 74% 92%, rgba(166, 182, 128, 0.34), transparent 66%),
+    radial-gradient(40% 36% at 24% 82%, rgba(200, 146, 65, 0.32), transparent 68%);
+  filter: blur(6px);
+  animation: warmDrift 46s ease-in-out infinite alternate;
+}
+
+/* 宣纸受光：缓慢扫过的高光带 */
+.ich-backdrop__sheen {
+  position: absolute;
+  inset: -25%;
+  background: linear-gradient(
+    108deg,
+    transparent 36%,
+    rgba(255, 250, 240, 0.5) 48%,
+    rgba(250, 240, 224, 0.34) 54%,
+    transparent 66%
+  );
+  background-size: 240% 100%;
+  mix-blend-mode: soft-light;
+  animation: paperSheen 30s linear infinite;
+}
+
+/* 纸纤维颗粒 */
+.ich-backdrop__grain {
+  position: absolute;
+  inset: -10%;
+  opacity: 0.5;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.34'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  animation: grainShift 36s linear infinite;
+}
+
+/* 剪纸团花 / 云纹 / 缠枝纹：大幅低透明度漂浮 */
+.ich-backdrop__motif {
+  position: absolute;
+  background-repeat: no-repeat;
+  background-size: contain;
+  opacity: 0.2;
+  will-change: transform;
+}
+
+.ich-backdrop__motif--bloom {
+  width: 460px;
+  height: 460px;
+  left: -120px;
+  top: 6%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240'%3E%3Cg fill='none' stroke='%23b94a33' stroke-width='1.4'%3E%3Ccircle cx='120' cy='120' r='18'/%3E%3Ccircle cx='120' cy='120' r='52' stroke-dasharray='5 7'/%3E%3Ccircle cx='120' cy='120' r='88'/%3E%3Cpath d='M120 20c16 20 16 48 0 68-16-20-16-48 0-68zM120 220c-16-20-16-48 0-68 16 20 16 48 0 68zM20 120c20-16 48-16 68 0-20 16-48 16-68 0zM220 120c-20 16-48 16-68 0 20-16 48-16 68 0z'/%3E%3Cpath d='M47 47c22 6 34 20 40 42-22-6-34-20-40-42zM193 47c-22 6-34 20-40 42 22-6 34-20 40-42zM47 193c22-6 34-20 40-42-22 6-34 20-40 42zM193 193c-22-6-34-20-40-42 22 6 34 20 40 42z'/%3E%3C/g%3E%3C/svg%3E");
+  animation: motifFloat 34s ease-in-out infinite;
+}
+
+.ich-backdrop__motif--cloud {
+  width: 520px;
+  height: 260px;
+  right: -140px;
+  top: 30%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 260 130'%3E%3Cg fill='none' stroke='%23a9762a' stroke-width='1.4'%3E%3Cpath d='M6 96c14 0 22-18 40-18s24 18 42 18 22-18 40-18 24 18 42 18 22-18 40-18 24 18 44 18'/%3E%3Cpath d='M6 62c14 0 22-18 40-18s24 18 42 18 22-18 40-18 24 18 42 18 22-18 40-18 24 18 44 18'/%3E%3Cpath d='M6 28c14 0 22-18 40-18s24 18 42 18 22-18 40-18 24 18 42 18 22-18 40-18 24 18 44 18'/%3E%3C/g%3E%3C/svg%3E");
+  animation: motifFloat 42s ease-in-out infinite reverse;
+}
+
+.ich-backdrop__motif--vine {
+  width: 420px;
+  height: 420px;
+  left: 12%;
+  bottom: -140px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 220'%3E%3Cg fill='none' stroke='%238b9d5b' stroke-width='1.4'%3E%3Cpath d='M10 110c40-60 80-60 110 0s70 60 90 0'/%3E%3Cpath d='M10 150c40-60 80-60 110 0s70 60 90 0'/%3E%3Cpath d='M10 70c40-60 80-60 110 0s70 60 90 0'/%3E%3Ccircle cx='66' cy='84' r='7'/%3E%3Ccircle cx='150' cy='132' r='7'/%3E%3Ccircle cx='110' cy='110' r='5'/%3E%3C/g%3E%3C/svg%3E");
+  animation: motifFloat 50s ease-in-out infinite;
+}
+
+.ich-backdrop__motif--seal {
+  width: 190px;
+  height: 190px;
+  right: 6%;
+  bottom: 8%;
+  opacity: 0.14;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cg fill='none' stroke='%23b94a33' stroke-width='3.4'%3E%3Crect x='8' y='8' width='84' height='84' rx='8'/%3E%3Cpath d='M30 30h40M30 50h40M30 70h40M50 24v52' stroke-width='3'/%3E%3C/g%3E%3C/svg%3E");
+  animation: sealPulse 22s ease-in-out infinite;
+}
+
+/* 金粉 / 纸屑粒子层（canvas） */
+.ich-backdrop__dust {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.55;
+}
+
+@keyframes warmDrift {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(2.5%, -2%, 0) scale(1.06);
+  }
+  100% {
+    transform: translate3d(-2.5%, 2.5%, 0) scale(1.02);
+  }
+}
+
+@keyframes paperSheen {
+  0% {
+    background-position: 130% 0;
+  }
+  100% {
+    background-position: -30% 0;
+  }
+}
+
+@keyframes grainShift {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  25% {
+    transform: translate3d(-1.6%, 1.2%, 0);
+  }
+  50% {
+    transform: translate3d(1.4%, -1.6%, 0);
+  }
+  75% {
+    transform: translate3d(-1.2%, -0.8%, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes motifFloat {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(18px, -22px, 0) rotate(2.2deg);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+}
+
+@keyframes sealPulse {
+  0%,
+  100% {
+    opacity: 0.1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.2;
+    transform: scale(1.05);
+  }
+}
+
+/* ============ 非遗风格小装饰 ============ */
+
+/* 印章：朱红方印 */
+.seal {
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 2px solid rgba(185, 74, 51, 0.78);
+  color: #97392a;
+  font-family: 'Noto Serif SC', 'Songti SC', serif;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+  background: rgba(247, 239, 227, 0.75);
+  box-shadow: 0 0 0 3px rgba(185, 74, 51, 0.1);
+}
+
+/* 回纹分隔线 */
+.fret-divider {
+  height: 12px;
+  border: 0;
+  background-repeat: repeat-x;
+  background-size: 60px 12px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='12' viewBox='0 0 60 12'%3E%3Cg fill='none' stroke='%23c89241' stroke-width='1.4'%3E%3Cpath d='M2 10V2h7v5h7V2h7v5h7V2h7v5h7v5'/%3E%3Cpath d='M2 10h5'/%3E%3C/g%3E%3C/svg%3E");
+  opacity: 0.6;
+}
+
+/* 剪纸角花（可单独用在大卡片上） */
+.corner-bloom {
+  position: absolute;
+  width: 74px;
+  height: 74px;
+  pointer-events: none;
+  opacity: 0.4;
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cg fill='none' stroke='%23b94a33' stroke-width='1.2'%3E%3Cpath d='M2 24C2 11 11 2 24 2'/%3E%3Cpath d='M7 24C7 14 14 7 24 7'/%3E%3Cpath d='M14 5c3 5 8 7 13 7'/%3E%3Cpath d='M5 14c5 3 7 8 7 13'/%3E%3Ccircle cx='12' cy='12' r='2.6'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ich-backdrop__wash,
+  .ich-backdrop__sheen,
+  .ich-backdrop__grain,
+  .ich-backdrop__motif,
+  .ich-backdrop__dust {
+    animation: none !important;
+  }
+}

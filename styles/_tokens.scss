@@ -1,0 +1,59 @@
+// 设计变量（米咖色 · 在参考图色板基础上整体压深一档，并往咖啡色偏移）
+// 参考图原始特征：米白宣纸底 + 暖沙金渐变 + 朱红/珊瑚主体；
+// 这里把纸色降低约 8% 亮度，并让 R-G 差值略增（更偏红褐、少一点黄），得到「米咖」调。
+
+// 纸（米咖阶）
+$paper-0: #fbf6ec;
+$paper-50: #f9f2e6;
+$paper-100: #f4eadb;
+$paper-200: #ede0ce;
+$paper-300: #e4d4be;
+$paper-400: #d9c5aa;
+$paper-500: #c9b092;
+$paper-600: #b5987a;
+$paper-700: #a08563;
+
+// 与 Tailwind 主题对齐的 ink 阶（原深色主题的 ink-* 已映射到米咖色阶）
+$ink-950: $paper-100;
+$ink-900: $paper-50;
+$ink-850: $paper-200;
+$ink-800: $paper-200;
+$ink-700: $paper-300;
+
+// 暖墨（文字）
+$text-1: #33241a;
+$text-2: rgba(66, 48, 33, 0.8);
+$text-3: rgba(96, 74, 53, 0.62);
+$line-soft: rgba(166, 126, 84, 0.38);
+
+// 朱红 / 珊瑚（略压深，和米咖底更协调）
+$cinnabar-300: #e08d70;
+$cinnabar-400: #d0684c;
+$cinnabar-500: #b94a33;
+$cinnabar-600: #9c3d29;
+
+// 金 / 琥珀
+$gold-200: #edd9b0;
+$gold-300: #dfb671;
+$gold-400: #c89241;
+$gold-500: #a9762a;
+
+// 青绿 / 橄榄
+$jade-300: #aabc85;
+$jade-400: #8b9d5b;
+$jade-500: #6e7e42;
+
+// AI / 科技点缀（暖琥珀与蜜色）
+$neon-300: #f0bc8c;
+$neon-400: #e39a63;
+$neon-500: #cb7046;
+$skyglow: #dcae55;
+
+// 图片遮罩用的暖墨色（photo scrim）
+$scrim-900: #2a190f;
+$scrim-700: #432a19;
+
+// 断点
+$bp-lg: 1080px;
+$bp-md: 820px;
+$bp-sm: 560px;
